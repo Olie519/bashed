@@ -1,7 +1,7 @@
 #!/usr/bin/env fish
 function wd40
   argparse 'h/help' 'y/yes' -- $argv
-  or return 1
+  or exit 1
 
   _cargo_installed
 
@@ -11,7 +11,7 @@ function wd40
 
   if not set -q argv[-1]
     echo "Directory cannot be empty"
-    return 3
+    exit 3
   end
 
   if not set -q _flag_y
@@ -57,7 +57,7 @@ Make sure that you have backups of any important artifacts!
       echo "Procceding.."
     case "*"
       echo "Aborted."
-      return 4;
+      exit 4;
   end
 end
 
