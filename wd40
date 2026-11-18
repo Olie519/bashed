@@ -1,0 +1,50 @@
+#!/usr/bin/env fish
+function wd40
+  argparse 'h/help' -- $argv
+  or return 1
+
+  cargo_installed
+
+  if set -q _flag_h
+    _print_help
+  end
+
+  if not set -q argv[-1]
+    echo "Directory cannot be empty"
+    return 3
+  end
+
+  set files (find $argv[-1] -name "Cargo.toml")
+  set dirs (path dirname $files)
+
+  for directory in $dirs
+    pushd $directory
+    cargo clean
+    popd
+  end
+end
+
+
+function _print_help
+  echo 'Usage: wd40 [OPTIONS] [DIRECTORY... ]
+
+Options:
+  -h, --help
+    Print this page
+'
+end
+
+function cargo_installed
+  if not type -q cargo
+    echo "Cargo is not installed, please install it before trying to use this tool."
+    exit 2;
+  end
+end
+
+function cargo_directory
+  if not test -f "Cargo.toml"
+    echo "No cargo file in this directory, did you mean to search sub-directories?"
+  end
+end
+
+wd40 $argv
