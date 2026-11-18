@@ -1,9 +1,9 @@
 #!/usr/bin/env fish
 function wd40
-  argparse 'h/help' -- $argv
+  argparse 'h/help' 'y/yes' -- $argv
   or return 1
 
-  cargo_installed
+  _cargo_installed
 
   if set -q _flag_h
     _print_help
@@ -12,6 +12,10 @@ function wd40
   if not set -q argv[-1]
     echo "Directory cannot be empty"
     return 3
+  end
+
+  if not set -q _flag_y
+    _warning_prompt
   end
 
   set files (find $argv[-1] -name "Cargo.toml")
@@ -31,19 +35,29 @@ function _print_help
 Options:
   -h, --help
     Print this page
+  -y, --yes
+    Skips warning prompt
 '
 end
 
-function cargo_installed
+function _cargo_installed
   if not type -q cargo
     echo "Cargo is not installed, please install it before trying to use this tool."
     exit 2;
   end
 end
 
-function cargo_directory
-  if not test -f "Cargo.toml"
-    echo "No cargo file in this directory, did you mean to search sub-directories?"
+function _warning_prompt
+  echo "This will delete any other files that may be in the cargo target folder.
+Make sure that you have backups of any important artifacts!
+"
+  read -n 1 -P "Continue... [y/N]" choice
+  switch $choice
+    case Y y
+      echo "Procceding.."
+    case "*"
+      echo "Aborted."
+      return 4;
   end
 end
 
